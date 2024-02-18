@@ -3,7 +3,6 @@ const bodyParser = require('body-parser');
 const axios = require('axios')
 const app = express()
 const sendToOpenAI = require('./gpt_openai');
-const sendToAura = require('./llm.js')
 require("dotenv").config();
 
 
@@ -11,6 +10,8 @@ const mattermost_server_url = process.env.MM_URL
 const login_id = process.env.LOGIN_ID
 const password = process.env.PASSWORD
 const PORT = process.env.PORT
+
+
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -69,9 +70,9 @@ app.post('/',async (req,res)=>{
     const userInfo = await API(req.body.user_id)
     const userEmail = userInfo[0]
     const username = userInfo[1]
-    const openaiResp = await sendToAura(llmQuery)
+    const openaiResp = await sendToOpenAI(llmQuery,userEmail)
     console.log(openaiResp)
-    res.send({"response_type":"in_channel","text":`@${username}\n>Query: _${query}_\n`+"```"+` ${openaiResp.replace('`','')} `+"```","icon_url":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3I9IMGV29KRn6ebYl_yuQYom9MNjNDdRiNw&usqp=CAU"})
+    res.send({"response_type":"in_channel","text":`@${username}\n>Query: _${query}_\n`+"```"+` ${openaiResp.replace('`','')} `+"```"})
 })
 
 app.listen(PORT,()=>{
