@@ -9,7 +9,7 @@ require("dotenv").config();
 const mattermost_server_url = process.env.MM_URL
 const login_id = process.env.LOGIN_ID
 const password = process.env.PASSWORD
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 5000
 
 
 app.use(bodyParser.json())
@@ -62,19 +62,25 @@ const ack = async (uid,cid)=>{
 }
 
 app.post('/',async (req,res)=>{
-    const uid = req.body.user_id
-    const cid = req.body.channel_id
-    await ack(uid,cid)
-    const query = req.body.text
-    const llmQuery =[{ 'role': 'user', 'content': `${query}` }];
-    const userInfo = await API(req.body.user_id)
-    const userEmail = userInfo[0]
-    const username = userInfo[1]
-    const openaiResp = await sendToOpenAI(llmQuery,userEmail)
-    console.log(openaiResp)
-    res.send({"response_type":"in_channel","text":`@${username}\n>Query: _${query}_\n`+"```"+` ${openaiResp.replace('`','')} `+"```"})
+    try{
+        const uid = req.body.user_id
+        const cid = req.body.channel_id
+        await ack(uid,cid)
+        const query = req.body.text
+        const llmQuery =[{ 'role': 'user', 'content': `${query}` }];
+        const userInfo = await API(req.body.user_id)
+        const userEmail = userInfo[0]
+        const username = userInfo[1]
+        const openaiResp = await sendToOpenAI(llmQuery,userEmail)
+        console.log(openaiResp)
+        res.send({"response_type":"in_channel","text":`@${username}\n>Query: _${query}_\n`+"```"+` ${openaiResp.replace('`','')} `+"```"})
+    }
+    catch(e){
+        console.log("Error while processing request:\n",e)
+    }
+    
 })
 
 app.listen(PORT,()=>{
-    console.log("Bot is up")
+    console.log("Mattermost Bot is listening")
 })
