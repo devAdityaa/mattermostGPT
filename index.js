@@ -10,6 +10,7 @@ require("dotenv").config();
 const mattermost_server_url = process.env.MM_URL
 const login_id = process.env.LOGIN_ID
 const password = process.env.PASSWORD
+const PORT = process.env.PORT
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -73,6 +74,6 @@ app.post('/',async (req,res)=>{
     res.send({"response_type":"in_channel","text":`@${username}\n>Query: _${query}_\n`+"```"+` ${openaiResp.replace('`','')} `+"```","icon_url":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3I9IMGV29KRn6ebYl_yuQYom9MNjNDdRiNw&usqp=CAU"})
 })
 
-app.listen(5000,()=>{
+app.listen(PORT,()=>{
     console.log("Bot is up")
 })
